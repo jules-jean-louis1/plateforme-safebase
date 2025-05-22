@@ -2,19 +2,25 @@ services:
   backend:
     container_name: backend
     build:
-      context: ./backend
-      dockerfile: Dockerfile.dev
+      context: ../backend
+      dockerfile: Dockerfile
+      target: ${NODE_ENV:-development}
     volumes:
       - ./backend:/app
       - ./backups:/app/backups
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
-      - "8080:8080"
+      - "${BACKEND_PORT}:8080"
     depends_on:
       safebase_db:
         condition: service_healthy
     environment:
-      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@safebase_db:5432/${DB_NAME}
+      - NODE_ENV=${NODE_ENV:-development}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_PORT=${DB_PORT}
+      - DATABASE_URL=${DATABASE_URL}
       - POSTGRES_URL=postgresql://${DB_USER}:${DB_PASSWORD}@postgres_db:5432/${DB_NAME}
       - MYSQL_URL=mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@mysql_db:3306/${MYSQL_DATABASE}
     networks:
@@ -24,15 +30,16 @@ services:
   frontend:
     container_name: frontend
     build:
-      context: ./frontend
-      dockerfile: Dockerfile.dev
+      context: ../frontend
+      dockerfile: Dockerfile
+      target: ${NODE_ENV:-development}
     volumes:
       - ./frontend:/usr/src/app
       - /usr/src/app/node_modules
     ports:
-      - "4200:4200"
+      - "${FRONTEND_PORT}:4200"
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=${NODE_ENV:-development}
     networks:
       - app-network
 
@@ -42,7 +49,7 @@ services:
       - "${DB_PORT}:5432"
     volumes:
       - safebase_db_data:/var/lib/postgresql/data
-      - ./sql/safebase_db/safebase.sql:/docker-entrypoint-initdb.d/safebase.sql
+      - ../sql/safebase_db/safebase.sql:/docker-entrypoint-initdb.d/safebase.sql
     restart: always
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]

@@ -38,30 +38,33 @@ L'application s'appuie sur les outils `pg_dump` pour PostgreSQL et `mysqldump` p
 
 ## 🚀 Initialisation du projet
 
-1. Copier les `.env.example` dans des `.env`, à la racine et dans le dossier `backend/`.
+1. Copier le `.env.example` dans des `.env`, le dossier `docker/` et remplacer les valeurs par défaut par celles de votre environnement local.
+
+   ```bash
+   cp docker/.env.example docker/.env
 
 2. Pour initialiser le projet, utilisez la commande suivante à la racine du projet pour créer tous les conteneurs nécessaires :
 
    ```bash
-   docker compose build
+   ./docker/docker.sh up -d
    ```
 
 3. Démarrer les conteneurs :
 
    ```bash
-   docker compose up
+   ./docker/docker.sh start
    ```
 
 4. Arrêter les conteneurs :
 
    ```bash
-   docker compose stop
+   ./docker/docker.sh stop
    ```
 
 5. (Re)build un seul conteneur :
 
    ```bash
-   docker compose build <container_name>
+   ./docker/docker.sh up -d <container_name>
    ```
 
 6. Rentrer dans le container :
@@ -163,12 +166,10 @@ npm run format:check
 
 Les images Docker pour le backend et le frontend sont poussées sur GitHub Container Registry lors de chaque push ou pull request sur la branche `dev`.
 
-### Utilisation de `docker-compose.prod.yml`
-
-Pour déployer les services en utilisant `docker-compose.prod.yml`, exécutez les commandes suivantes :
+Modifiez  le fichier `.env` dans le dossier `docker/` pour passer la variable NODE_ENV à `production` pour le déploiement en production.
 
 ```bash
-docker-compose -f docker-compose.prod.yml up -d
+   ./docker/docker.sh up -d
 ```
 
 
